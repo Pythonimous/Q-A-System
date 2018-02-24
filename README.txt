@@ -7,3 +7,4 @@ TrainModel.py - training model
 TestModel.py - loading and testing model separately
 Model_Weights.h5 - check DL_README.txt for details
 SVM_Linear files - last year's baseline algorithm created with different set of features using RapidMiner.
+Classification.docx - explanation on every question type.
