@@ -1,3 +1,8 @@
+Deep Learning folder:
+
+Old corpus - with unequal class distribution
+New corpus - not yet made, at the moment identical to Old corpus.
+
 Training.txt, Test.txt - training and test corpora
 TestLabels.txt, TestFeatures.txt - test corpora for ML-preprocessing (it requires separate files)
 Features.txt, Labels.txt - already preprocessed for ML-training: lemmatization and POS-tagging (in preprocessing pipeline) take a long time on their own.
@@ -6,5 +11,8 @@ MLPreprocessing.py - converting preprocessed text into ML .fit format (is includ
 TrainModel.py - training model
 TestModel.py - loading and testing model separately
 Model_Weights.h5 - check DL_README.txt for details
-SVM_Linear files - last year's baseline algorithm created with different set of features using RapidMiner.
+
+SVM folder:
+
+SVM_linear files - last year's baseline algorithm created with different set of features using RapidMiner.
 Classification.docx - explanation on every question type.
