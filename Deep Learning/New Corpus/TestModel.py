@@ -9,7 +9,7 @@ from keras.layers.wrappers import TimeDistributed
 from keras.layers.advanced_activations import LeakyReLU
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 # Loading test data
 
@@ -35,40 +35,36 @@ X_test = sc.fit_transform(X_test)
 X_test = X_test[:,np.newaxis]
 
 # 4. Matrices to tensors
-X_test = X_test.reshape(-1,1,314,1)
+X_test = X_test.reshape(-1,1,313,1)
 
 # 5. Categorizing labels
 y_test_one_hot = to_categorical(y_test)
 
 # Parameters
-batch_size = 56
-epochs = 20
-num_classes = 14
+batch_size = 104
+epochs = 33
+num_classes = 13
 
 # Network setup
 model = Sequential()
 
 # Layer composition
-model.add(Conv2D(28, kernel_size=(1,2),
+model.add(Conv2D(52, kernel_size=(1,2),
                  activation='linear',
-                 input_shape=(1,314,1),padding='same'))
+                 input_shape=(1,313,1),padding='same'))
 model.add(LeakyReLU(alpha=0.1))
 model.add(MaxPooling2D((2, 2),padding='same'))
 model.add(Dropout(0.25))
-model.add(Conv2D(56, (1,2), activation='linear',padding='same'))
-model.add(LeakyReLU(alpha=0.1))
-model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
-model.add(Dropout(0.25))
-model.add(Conv2D(112, (1,2), activation='linear',padding='same'))
+model.add(Conv2D(104, (1,2), activation='linear',padding='same'))
 model.add(LeakyReLU(alpha=0.1))
 model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
 model.add(Dropout(0.4))
-model.add(TimeDistributed(Flatten())) #Implementing time distribution
+model.add(TimeDistributed(Flatten()))
 model.add(LSTM(output_dim=128, return_sequences=True))
 def td_avg(x):
     return th.mean(x, axis=1)
 def td_avg_shape(x):
-    return tuple((batch_size,14))
+    return tuple((batch_size,num_classes))
 model.add(TimeDistributed(Dense(num_classes, activation='softmax')))
 model.add(Lambda(td_avg,output_shape=td_avg_shape))
 
@@ -104,3 +100,6 @@ predicted_classes = model.predict(X_test)
 predicted_classes = np.argmax(np.round(predicted_classes),axis=1)
 target_names = ["Class {}".format(i) for i in range(num_classes)]
 print(classification_report(y_test, predicted_classes, target_names=target_names))
+print(accuracy_score(y_test, predicted_classes),'\n')
+cmat = confusion_matrix(y_test, predicted_classes)
+print(cmat.diagonal()/cmat.sum(axis=1))

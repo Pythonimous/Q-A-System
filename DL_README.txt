@@ -1,4 +1,4 @@
-Document processing pipeline: function pipeline, designed to separate delimited questions and labels, extracting features and vectorally representing the former.
+Document processing pipeline: function pipeline, designed to separate delimited questions and labels, extracting features and vectorally representing the former. (tf-idf in filename - with tf-idf usage)
 MLPreprocessing: transforming labels and features into format, suitable for CNN
 TrainModel: training network configuration and evaluating on existing test data
 TestModel: complying network, loading weights instead of re-training, with testing possibilities.
@@ -11,12 +11,11 @@ Class1 = 10
 Class2 = 11
 Class3 = 12
 Class4 = 13
-Class5 = 14
-Class6 = 2
-Class7 = 3
-Class8 = 4
-Class9 = 5
-Class10 = 6
-Class11 = 7
-Class12 = 8
-Class13 = 9
+Class5 = 2
+Class6 = 3
+Class7 = 4
+Class8 = 5
+Class9 = 6
+Class10 = 7
+Class11 = 8
+Class12 = 9

@@ -1,11 +1,10 @@
 import re
-import fasttext
 import gensim
-from gensim.models import doc2vec, utils
 import numpy as np
 import pymorphy2
 import string
 from pymystem3 import Mystem
+from sklearn.feature_extraction.text import TfidfVectorizer as vc
 
 def extract_questions(x): #x - labeled data name, here separator is \t
     lines = [line.rstrip('\n') for line in open(x)]
@@ -94,7 +93,6 @@ def determinefeatures(a): #extracting regexp features from single question
     t11 = 0
     t12 = 0
     t13 = 0
-    t14 = 0
     list = []
 
     m = re.match(r'.*[\?\.]', a)
@@ -104,6 +102,22 @@ def determinefeatures(a): #extracting regexp features from single question
     m = re.match(r'.* ((ли)|(не)) .*[\?\.]', a)
     if m:
         t2 = 1
+
+    m = re.match(r'.*([чЧ]то означает|такое|значит).*[\?\.]', a)
+    if m:
+        t3 = 1
+
+    m = re.match(r'.*(([нН]а)?[пП]ример).*[\?\.]', a)
+    if m:
+        t4 = 1
+
+    m = re.match(r'.*(([чЧ]ем\S.* похо(ж|жи|жа|же)|отлича(ются|ется|))|([кК]ак\S.* похо(ж|жи|жа|же)| отлича(ются|ется|))|((([вВ] чём)|([кК]акая)|([гГ]де))? (\w*)[рР]азница|[оО]тличие)|(сравн)).*[\?\.]', a)
+    if m:
+        t5 = 1
+
+    m = re.match(r'.* ([иИ]ли) .*[\?\.]', a)
+    if m:
+        t6 = 1
 
     m = re.match(r'.*[кК]то.*[\?\.]', a)
     if m:
@@ -117,22 +131,6 @@ def determinefeatures(a): #extracting regexp features from single question
     if m:
         t7 = 1
 
-    m = re.match(r'.* ([иИ]ли) .*[\?\.]', a)
-    if m:
-        t6 = 1
-
-    m = re.match(r'.*(([пП]очему)|([чЧ]то было|явилось|стало|(по?)служило причиной)).*[\?\.]', a)
-    if m:
-        t13 = 1
-
-    m = re.match(r'.*([чЧ]то означает|такое|значит).*[\?\.]', a)
-    if m:
-        t3 = 1
-
-    m = re.match(r'.*([сС]колько|[кК]ак много).*[\?\.]', a)
-    if m:
-        t9 = 1
-
     m = re.match(r'.*(((([вВ]о)|([чЧ]ерез)) сколько)|([вВ] (какое|который) (время|час))).*[\?\.]', a)
     if m:
         t7 = 1
@@ -141,33 +139,35 @@ def determinefeatures(a): #extracting regexp features from single question
     if m:
         t7 = 1
 
-    m = re.match(r'.*(([кК]аковы последствия)|([чЧ]то следует (из|за))|([чЧ]то будет (за|после|дальше|далее))).*[\?\.]', a)
-    if m:
-        t14 = 1
-
     m = re.match(r'.*(([кК]ак(ой|ая|ое|ом|ие))|([кК]ак(им|ими|ие) ((свойств(ом|ами|а))|(качеств(ом|ами|а))) (наделен|обладает|характеризуется|отличается|имеет))).*[\?\.]', a)
     if m:
         t8 = 1
 
-    m = re.match(r'.*(([сС] помощью|[пП]осредством)? (([кК]ого)|([чЧ]его))|(([чЧ]ем|[кК]ем) (воспользова(лся|лась|ться))?)|([бБ]лагодаря (кому|чему))|(([кК]то|[чЧ]то) позволил(о?))).*[\?\.]', a)
+    m = re.match(r'.*([сС]колько|[кК]ак много).*[\?\.]', a)
     if m:
-        t11 = 1
-
-    m = re.match(r'.*(([кК] чему)|([зЗ]ачем)|([сС] как(ой|ими) (цел(ью|ями))|(задач(ей|ами)))|([дД]ля чего)|(([вВ]о имя)|([дД]ля как(ой|их)) (цел(и|ей))|(задач(и?)))|([кК]ак(ую|ие) (цел(ь|и))|(задач(у|и)))).*[\?\.]', a)
-    if m:
-        t12 = 1
-
-    m = re.match(r'.*(([пП]риведи|[кК]акой пример|образец)|(([чЧ]то|[кК]то) ((может ((служить)|(выступ(ать|ить))))|((по?)служит|выступ(ает|ит))) (как )?((пример(ом?))|(образ(ец|цом))))).*[\?\.]', a)
-    if m:
-        t4 = 1
+        t9 = 1
 
     m = re.match(r'.*(([чЧ]то (надо?).* чтобы|делать)|([кК]ак)|([пП]о как(ому|им) (план(у|ам))|(алгоритм(у|ам)))|([пП]о как(ому|ой) (схем(е|ам))|(тактик(е|ам)))|([кК]ак(им|ими) (образ(ом|ами))|(пут(ем|ями)))|([кК]ак(ой|ими) (тактик(ой|ами))|(схем(ой|ами)))) .*[\?\.]', a)
     if m:
         t10 = 1
 
-    m = re.match(r'.*(([чЧ]ем\S.* похо(ж|жи|жа|же)|отлича(ются|ется|))|[кК]ак\S.* похо(ж|жи|жа|же)| отлича(ются|ется|)).*[\?\.]', a)
+    m = re.match(r'.*((([сС] помощью|[пП]осредством)? ((( к)|(К))ого)|((( ч)|(Ч))его))|(((( ч)|(Ч))ем|(( к)|(К))ем) (воспользова(лся|лась|ться))?)|([бБ]лагодаря (кому|чему))|(((( к)|(К))то|(( ч)|(Ч))то) позволил(о?))|([кК]аким образом)|([чЧ]то .*дела)).*[\?\.]', a)
+    if m and (t5 != 1):
+        t10 = 1
+
+    m = re.match(r'.*(([кК] чему)|([зЗ]ачем)|([сС] как(ой|ими) (цел(ью|ями))|(задач(ей|ами)))|([дД]ля чего)|(([вВ]о имя)|([дД]ля как(ой|их)) (цел(и|ей))|(задач(и?)))|([кК]ак(ую|ие) (цел(ь|и))|(задач(у|и)))).*[\?\.]', a)
     if m:
-        t5 = 1
+        t11 = 1
+        t10 = 0
+
+    m = re.match(r'.*(([пП]очему)|([чЧ]то было|явилось|стало|(по?)служило причиной)).*[\?\.]', a)
+    if m:
+        t12 = 1
+
+    m = re.match(r'.*(([кК]аковы последствия)|([чЧ]то следует (из|за))|([чЧ]то будет (за|после|дальше|далее))|([еЕ]сли)).*[\?\.]', a)
+    if m:
+        t13 = 1
+
 
     list.append(t1)
     list.append(t2)
@@ -182,7 +182,6 @@ def determinefeatures(a): #extracting regexp features from single question
     list.append(t11)
     list.append(t12)
     list.append(t13)
-    list.append(t14)
     return list
 
 def extract_features(x): #extracting regexp features from list of questions
@@ -204,11 +203,13 @@ def vecsnfeatures(x): #adding regexp features as a binary sequence to the end of
 
 def vectorslabels(x): #saves labels and features into separate files for ML usage
 
-    np.savetxt('SampleFeatures.txt',vecsnfeatures(x)) #saving features into file
+    np.savetxt('TestFeatures.txt',vecsnfeatures(x)) #saving features into file
 
-    text = open("SampleLabels.txt","w") #saving labels into file
+    text = open("TestLabels.txt","w") #saving labels into file
     for i in extract_labels(x):
         text.write(i+('\n'))
     print('All done!')
 
-vectorslabels('TestPipeline.txt') #executing
+vectorslabels('Test.txt') #executing
+
+#КОГДА ЗАМЕНЯЕШЬ ЭТО, ИЗМЕНИ ИМЯ ФАЙЛА С ЧАСТЕРЕЧНЫМ РАЗБОРОМ
