@@ -1,0 +1,10 @@
+26CNN512B100EwDOwoTD 20,3 - Early Stop 67 - DO 0.2
+
+26CNN - Filters of first layer (26)
+512B - batch size (512)
+100E - specified number of epochs (100)
+wDO - with dropout()
+woTD - without timedistributed layer (LSTM, RCNN aspect)
+20,3 - kernel (window) size
+Early stop 67 - epoch, at which earlystopping callback has stopped the training
+DO 0.2 - Dropout(0.2)

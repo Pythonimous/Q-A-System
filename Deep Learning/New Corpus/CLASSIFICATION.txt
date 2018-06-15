@@ -1,0 +1,14 @@
+During evaluation visualization, the model names classes in its own system. Here are model's classification analogues:
+Class0 = 1
+Class1 = 10
+Class2 = 11
+Class3 = 12
+Class4 = 13
+Class5 = 2
+Class6 = 3
+Class7 = 4
+Class8 = 5
+Class9 = 6
+Class10 = 7
+Class11 = 8
+Class12 = 9
