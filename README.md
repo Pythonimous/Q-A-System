@@ -2,11 +2,7 @@ Deep Learning folder:
 
 ///
 
-Old corpus folder: - with unequal class distribution
-
-***
-
-New corpus folder: less classes, semi-normalized distribution, sentences are cut after average size
+Corpus folder: less classes, semi-normalized distribution, sentences are cut after average size
 
 Classification.docx: classes' clarification;
 
