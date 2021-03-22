@@ -1,4 +1,4 @@
-Deep Learning folder:
+2016-2019 BA Thesis' Deep Learning folder:
 
 ///
 
